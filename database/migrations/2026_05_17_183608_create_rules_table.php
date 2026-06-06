@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void{
         Schema::create('rules', function (Blueprint $table) {
-            $table->string('rules_id')->primary();
-            $table->string('rules_name', 60);
-            $table->string('icon_url', 100);
-            $table->string('category', 10);
+            $table->string('rule_id')->primary();  
+            $table->string('rule_name', 60); 
+            $table->string('icon_url', 255); 
+            $table->string('category', 50); 
             $table->timestamps();
         });
     }

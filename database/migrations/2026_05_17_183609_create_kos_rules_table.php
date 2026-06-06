@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
 {
     Schema::create('kos_rules', function (Blueprint $table) {
-        $table->string('id')->primary();
-        $table->string('rules_id');
-        $table->string('kos_id');
-        $table->timestamps();
+            $table->id();
 
-        // Setup Foreign Key
-        $table->foreign('rules_id')->references('rules_id')->on('rules')->onDelete('cascade');
-        $table->foreign('kos_id')->references('kos_id')->on('kos')->onDelete('cascade');
-    });
+            $table->string('rule_id'); 
+            $table->string('kos_id');
+            $table->timestamps();
+
+            $table->foreign('rule_id')->references('rule_id')->on('rules')->onDelete('cascade');
+            $table->foreign('kos_id')->references('kos_id')->on('kos')->onDelete('cascade');
+        });
 }
 
     /**

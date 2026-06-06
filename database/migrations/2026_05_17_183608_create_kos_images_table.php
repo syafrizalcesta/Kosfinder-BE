@@ -11,19 +11,20 @@ return new class extends Migration
      */
     public function up(): void{
         Schema::create('kos_images', function (Blueprint $table) {
-            $table->string('images_id')->primary();
-            $table->string('kos_id'); // Foreign Key ke tabel kos
-            $table->string('images_url', 100);
-            $table->boolean('is_primary')->default(false); // bit(1) -> boolean
+            $table->string('image_id')->primary(); 
+            
+            $table->string('kos_id');
+            
+            $table->string('image_url', 255); 
+            
+            $table->boolean('is_primary')->default(false); // 
             $table->timestamps();
 
-        // Relasi FK ke tabel kos
             $table->foreign('kos_id')->references('kos_id')->on('kos')->onDelete('cascade');
         });
     }
-    /**
-     * Reverse the migrations.
-     */
+
+
     public function down(): void
     {
         Schema::dropIfExists('kos_images');

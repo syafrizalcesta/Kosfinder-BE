@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void{
         Schema::create('facilities', function (Blueprint $table) {
-            $table->string('facilities_id')->primary();
-            $table->string('facilities_name', 60);
-            $table->string('icon_url', 100);
-            $table->string('category', 10);
+            $table->string('facility_id')->primary(); 
+            $table->string('facility_name', 60); 
+            $table->string('icon_url', 255); 
+            $table->string('category', 50); 
             $table->timestamps();
         });
     }

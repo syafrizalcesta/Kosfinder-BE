@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void{
         Schema::create('kos_facilities', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->string('facilities_id');
+            $table->id(); 
+            
+            $table->string('facility_id'); 
             $table->string('kos_id');
             $table->timestamps();
 
-            // Setup Foreign Key
-            $table->foreign('facilities_id')->references('facilities_id')->on('facilities')->onDelete('cascade');
+            $table->foreign('facility_id')->references('facility_id')->on('facilities')->onDelete('cascade');
             $table->foreign('kos_id')->references('kos_id')->on('kos')->onDelete('cascade');
         });
     }
