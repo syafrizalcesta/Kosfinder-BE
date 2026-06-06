@@ -22,7 +22,6 @@ return [
         '%s%s',
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
         Sanctum::currentApplicationUrlWithPort(),
-        // Sanctum::currentRequestHost(),
     ))),
 
     /*
@@ -56,13 +55,6 @@ return [
     |--------------------------------------------------------------------------
     | Token Prefix
     |--------------------------------------------------------------------------
-    |
-    | Sanctum can prefix new tokens in order to take advantage of numerous
-    | security scanning initiatives maintained by open source platforms
-    | that notify developers if they commit tokens into repositories.
-    |
-    | See: https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning
-    |
     */
 
     'token_prefix' => env('SANCTUM_TOKEN_PREFIX', ''),
@@ -71,11 +63,6 @@ return [
     |--------------------------------------------------------------------------
     | Sanctum Middleware
     |--------------------------------------------------------------------------
-    |
-    | When authenticating your first-party SPA with Sanctum you may need to
-    | customize some of the middleware Sanctum uses while processing the
-    | request. You may change the middleware listed below as required.
-    |
     */
 
     'middleware' => [
