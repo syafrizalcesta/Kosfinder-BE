@@ -6,6 +6,7 @@ use App\Models\Review;
 use App\Models\ReviewPhoto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Cloudinary\Cloudinary;
 
 class ReviewController extends Controller
 {
@@ -71,12 +72,15 @@ class ReviewController extends Controller
 
         // Simpan foto jika ada
         if ($request->hasFile('photos')) {
+            $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
             foreach ($request->file('photos') as $index => $file) {
-                $path = $file->store("reviews/{$review->reviewid}", 'public');
+                $upload = $cloudinary->uploadApi()->upload($file->getRealPath(), [
+                    'folder' => 'kosfinder/reviews'
+                ]);
 
                 ReviewPhoto::create([
                     'reviewid'   => $review->reviewid,
-                    'photo_url'  => Storage::url($path),
+                    'photo_url'  => $upload['secure_url'],
                     'sort_order' => $index,
                 ]);
             }

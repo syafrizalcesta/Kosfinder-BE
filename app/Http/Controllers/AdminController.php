@@ -102,12 +102,8 @@ class AdminController extends Controller
             'role'                => $user->role,
             'verification_status' => $user->verification_status,
             'avatar_url'          => $user->avatar_url, // dari accessor di User model
-            'ktp_image_url'       => $user->ktp_image_path
-                                        ? asset('storage/' . $user->ktp_image_path)
-                                        : null,
-            'selfie_image_url'    => $user->selfie_image_path
-                                        ? asset('storage/' . $user->selfie_image_path)
-                                        : null,
+            'ktp_image_url'    => $user->ktp_image_path ?? null,
+            'selfie_image_url' => $user->selfie_image_path ?? null,
             'created_at'          => $user->created_at,
         ];
     }

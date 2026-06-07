@@ -6,6 +6,7 @@ use App\Models\Kos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Cloudinary\Cloudinary;
 
 class KosController extends Controller
 {
@@ -142,14 +143,17 @@ class KosController extends Controller
 
             // 4. Proses Upload Foto
             if ($request->hasFile('images')) {
+                $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
                 foreach ($request->file('images') as $index => $file) {
-                    $path = $file->store('kos_images', 'public');
+                    $upload = $cloudinary->uploadApi()->upload($file->getRealPath(), [
+                        'folder' => 'kosfinder/kos_images'
+                    ]);
                     $imageId = 'IMG-' . strtoupper(Str::random(8));
                     
                     DB::table('kos_images')->insert([
                         'image_id' => $imageId,
                         'kos_id' => $kosId,
-                        'image_url' => asset('storage/' . $path),
+                        'image_url' => $upload['secure_url'],
                         'is_primary' => $index === 0 ? true : false,
                         'created_at' => now(),
                         'updated_at' => now(),

@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Cloudinary\Cloudinary;
+use Cloudinary\Configuration\Configuration;
 
 
 class AuthController extends Controller
@@ -116,37 +118,39 @@ class AuthController extends Controller
     // UPDATE FOTO PROFIL (AVATAR)
     // ==========================================
     public function updateAvatar(Request $request)
-    {
-        $request->validate([
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-        ]);
+            {
+                $request->validate([
+                    'avatar' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+                ]);
 
-        $user = $request->user();
+                $user = $request->user();
 
-        try {
-            // Hapus avatar lama jika ada
-            if ($user->avatar_path) {
-                Storage::disk('public')->delete($user->avatar_path);
+                try {
+                    $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
+
+                    $upload = $cloudinary->uploadApi()->upload($request->file('avatar')->getRealPath(), [
+                        'folder' => 'kosfinder/avatars'
+                    ]);
+
+                    if ($user->avatar_path) {
+                        // Hapus gambar lama di Cloudinary jika perlu
+                    }
+
+                    $user->update(['avatar_path' => $upload['secure_url']]);
+
+                    return response()->json([
+                        'message' => 'Foto profil berhasil diperbarui.',
+                        'avatar_url' => $upload['secure_url'],
+                        'user' => $user
+                    ], 200);
+
+                } catch (\Exception $e) {
+                    Log::error('Gagal upload avatar: ' . $e->getMessage());
+                    return response()->json([
+                        'message' => 'Terjadi kesalahan saat menyimpan foto profil.'
+                    ], 500);
+                }
             }
-
-            // Simpan avatar baru
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
-
-            $user->update(['avatar_path' => $avatarPath]);
-
-            return response()->json([
-                'message' => 'Foto profil berhasil diperbarui.',
-                'avatar_url' => asset('storage/' . $avatarPath),
-                'user' => $user
-            ], 200);
-
-        } catch (\Exception $e) {
-            Log::error('Gagal upload avatar: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Terjadi kesalahan saat menyimpan foto profil.'
-            ], 500);
-        }
-    }
 
     // ==========================================
     // UPDATE DATA PROFIL (NAMA & NO. HP)
@@ -195,12 +199,19 @@ class AuthController extends Controller
         $user = $request->user();
 
         try {
-            $ktpPath = $request->file('ktp_image')->store('verifications', 'public');
-            $selfiePath = $request->file('selfie_image')->store('verifications', 'public');
+            $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
+
+            $ktpUpload = $cloudinary->uploadApi()->upload($request->file('ktp_image')->getRealPath(), [
+                'folder' => 'kosfinder/verifications'
+            ]);
+
+            $selfieUpload = $cloudinary->uploadApi()->upload($request->file('selfie_image')->getRealPath(), [
+                'folder' => 'kosfinder/verifications'
+            ]);
 
             $user->update([
-                'ktp_image_path' => $ktpPath,
-                'selfie_image_path' => $selfiePath,
+                'ktp_image_path' => $ktpUpload['secure_url'],
+                'selfie_image_path' => $selfieUpload['secure_url'],
                 'verification_status' => 'pending',
             ]);
 
