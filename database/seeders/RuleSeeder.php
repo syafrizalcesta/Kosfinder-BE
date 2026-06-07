@@ -11,22 +11,24 @@ class RuleSeeder extends Seeder
     public function run(): void
     {
         $rules = [
-            ['name' => 'Dilarang merokok', 'category' => 'Ketertiban'],
-            ['name' => 'Terdapat jam malam', 'category' => 'Akses'],
-            ['name' => 'Dilarang membawa lawan jenis', 'category' => 'Norma'],
-            ['name' => 'Dilarang membawa peliharaan', 'category' => 'Kebersihan'],
-            ['name' => 'Tamu dilarang menginap', 'category' => 'Ketertiban'],
+            ['id' => 'RUL-SMK001', 'name' => 'Dilarang merokok', 'category' => 'Ketertiban'],
+            ['id' => 'RUL-JAM001', 'name' => 'Terdapat jam malam', 'category' => 'Akses'],
+            ['id' => 'RUL-LJN001', 'name' => 'Dilarang membawa lawan jenis', 'category' => 'Norma'],
+            ['id' => 'RUL-PET001', 'name' => 'Dilarang membawa peliharaan', 'category' => 'Kebersihan'],
+            ['id' => 'RUL-TAM001', 'name' => 'Tamu dilarang menginap', 'category' => 'Ketertiban'],
         ];
 
         foreach ($rules as $rule) {
-            DB::table('rules')->insert([
-                'rule_id' => 'RUL-' . strtoupper(Str::random(6)),
-                'rule_name' => $rule['name'],
-                'category' => $rule['category'],
-                'icon_url' => 'default-rule.svg',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            DB::table('rules')->updateOrInsert(
+                ['rule_id' => $rule['id']],
+                [
+                    'rule_name' => $rule['name'],
+                    'category' => $rule['category'],
+                    'icon_url' => 'default-rule.svg',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
         }
     }
 }

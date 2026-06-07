@@ -11,28 +11,30 @@ class FacilitySeeder extends Seeder
     public function run(): void
     {
         $facilities = [
-            ['name' => 'WiFi', 'category' => 'Konektivitas'],
-            ['name' => 'AC', 'category' => 'Kamar'],
-            ['name' => 'Kamar Mandi Dalam', 'category' => 'Kamar'],
-            ['name' => 'Parkir Motor', 'category' => 'Fasilitas Luar'],
-            ['name' => 'Parkir Mobil', 'category' => 'Fasilitas Luar'],
-            ['name' => 'Dapur Umum', 'category' => 'Fasilitas Bersama'],
-            ['name' => 'Laundry', 'category' => 'Layanan'],
-            ['name' => 'CCTV', 'category' => 'Keamanan'],
-            ['name' => 'Keamanan 24 Jam', 'category' => 'Keamanan'],
-            ['name' => 'Include Listrik', 'category' => 'Biaya'],
-            ['name' => 'Kipas', 'category' => 'Kamar'],
+            ['id' => 'FAC-WIFI01', 'name' => 'WiFi', 'category' => 'Konektivitas'],
+            ['id' => 'FAC-AC0001', 'name' => 'AC', 'category' => 'Kamar'],
+            ['id' => 'FAC-KMI001', 'name' => 'Kamar Mandi Dalam', 'category' => 'Kamar'],
+            ['id' => 'FAC-PKM001', 'name' => 'Parkir Motor', 'category' => 'Fasilitas Luar'],
+            ['id' => 'FAC-PKM002', 'name' => 'Parkir Mobil', 'category' => 'Fasilitas Luar'],
+            ['id' => 'FAC-DPR001', 'name' => 'Dapur Umum', 'category' => 'Fasilitas Bersama'],
+            ['id' => 'FAC-LDR001', 'name' => 'Laundry', 'category' => 'Layanan'],
+            ['id' => 'FAC-CTV001', 'name' => 'CCTV', 'category' => 'Keamanan'],
+            ['id' => 'FAC-SEC001', 'name' => 'Keamanan 24 Jam', 'category' => 'Keamanan'],
+            ['id' => 'FAC-LST001', 'name' => 'Include Listrik', 'category' => 'Biaya'],
+            ['id' => 'FAC-FAN001', 'name' => 'Kipas', 'category' => 'Kamar'],
         ];
 
         foreach ($facilities as $fac) {
-            DB::table('facilities')->insert([
-                'facility_id' => 'FAC-' . strtoupper(Str::random(6)),
-                'facility_name' => $fac['name'],
-                'category' => $fac['category'],
-                'icon_url' => 'default-icon.svg', // Sementara menggunakan nama file default
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            DB::table('facilities')->updateOrInsert(
+                ['facility_id' => $fac['id']],
+                [
+                    'facility_name' => $fac['name'],
+                    'category' => $fac['category'],
+                    'icon_url' => 'default-icon.svg',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
         }
     }
 }
