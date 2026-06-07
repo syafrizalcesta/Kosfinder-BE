@@ -12,7 +12,13 @@ WORKDIR /var/www
 COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
-
+RUN mkdir -p /var/www/storage/framework/views \
+    && mkdir -p /var/www/storage/framework/cache \
+    && mkdir -p /var/www/storage/framework/sessions \
+    && mkdir -p /var/www/storage/logs \
+    && mkdir -p /var/www/bootstrap/cache \
+    && chmod -R 777 /var/www/storage \
+    && chmod -R 777 /var/www/bootstrap/cache
 COPY render/nginx.conf /etc/nginx/sites-enabled/default
 COPY render/start.sh /start.sh
 RUN chmod +x /start.sh
