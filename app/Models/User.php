@@ -7,7 +7,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -48,10 +47,7 @@ class User extends Authenticatable
      */
     public function getAvatarUrlAttribute(): ?string
     {
-        if ($this->avatar_path) {
-            return asset('storage/' . $this->avatar_path);
-        }
-        return null;
+        return $this->avatar_path ?? null;
     }
 
     /**
