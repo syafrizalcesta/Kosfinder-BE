@@ -40,7 +40,34 @@ class AuthController extends Controller
                 ]
             );
 
-            Mail::to($request->email)->send(new OtpMail($otpCode));
+            // Kirim via Brevo HTTP API
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'api-key' => env('BREVO_API_KEY'),
+                'Content-Type' => 'application/json',
+            ])->post('https://api.brevo.com/v3/smtp/email', [
+                'sender' => [
+                    'name' => env('MAIL_FROM_NAME', 'KosFinder'),
+                    'email' => env('MAIL_FROM_ADDRESS'),
+                ],
+                'to' => [
+                    ['email' => $request->email]
+                ],
+                'subject' => 'Kode Verifikasi KosFinder+',
+                'htmlContent' => "
+                    <div style='font-family: sans-serif; max-width: 480px; margin: auto; padding: 40px; background: #f9fafb; border-radius: 16px;'>
+                        <h2 style='color: #1d4ed8;'>KosFinder+</h2>
+                        <p>Berikut kode OTP untuk verifikasi akun kamu:</p>
+                        <div style='font-size: 40px; font-weight: bold; letter-spacing: 12px; color: #1d4ed8; text-align: center; padding: 24px; background: #eff6ff; border-radius: 12px; margin: 24px 0;'>
+                            {$otpCode}
+                        </div>
+                        <p style='color: #6b7280; font-size: 14px;'>Kode berlaku selama <strong>5 menit</strong>. Jangan bagikan kode ini ke siapapun.</p>
+                    </div>
+                ",
+            ]);
+
+            if ($response->failed()) {
+                throw new \Exception('Brevo API error: ' . $response->body());
+            }
 
             return response()->json([
                 'message' => 'Kode OTP berhasil dikirim ke email Anda.'
@@ -48,7 +75,6 @@ class AuthController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Gagal mengirim OTP: ' . $e->getMessage());
-            
             return response()->json([
                 'message' => 'Gagal mengirim email verifikasi. Pastikan konfigurasi .env sudah benar.'
             ], 500);
