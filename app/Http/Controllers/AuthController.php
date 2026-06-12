@@ -115,7 +115,21 @@ class AuthController extends Controller
             'user_name' => 'required|string|max:20',
             'email' => 'required|string|email|max:50|unique:users',
             'password' => 'required|string|min:6',
-            'phone_whatsapp' => ['required', 'string', 'min:10', 'max:15', 'regex:/^(08|62)[0-9]+$/'],
+            'phone_whatsapp' => [
+                'required',
+                'string',
+                'min:10',
+                'max:15',
+                'regex:/^(08|62)[0-9]+$/',
+                'unique:users,phone_whatsapp',
+            ],
+        ], [
+            'email.unique' => 'Email ini sudah terdaftar di KosFinder+.',
+            'phone_whatsapp.unique' => 'Nomor WhatsApp ini sudah terdaftar di KosFinder+.',
+            'phone_whatsapp.regex' => 'Format nomor WhatsApp harus diawali 08 atau 62.',
+            'phone_whatsapp.min' => 'Nomor WhatsApp terlalu pendek (minimal 10 angka).',
+            'user_name.max' => 'Nama terlalu panjang (maksimal 20 karakter).',
+            'password.min' => 'Password minimal 6 karakter.',
         ]);
 
         $user = User::create([
@@ -144,39 +158,39 @@ class AuthController extends Controller
     // UPDATE FOTO PROFIL (AVATAR)
     // ==========================================
     public function updateAvatar(Request $request)
-            {
-                $request->validate([
-                    'avatar' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-                ]);
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ]);
 
-                $user = $request->user();
+        $user = $request->user();
 
-                try {
-                    $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
+        try {
+            $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
 
-                    $upload = $cloudinary->uploadApi()->upload($request->file('avatar')->getRealPath(), [
-                        'folder' => 'kosfinder/avatars'
-                    ]);
+            $upload = $cloudinary->uploadApi()->upload($request->file('avatar')->getRealPath(), [
+                'folder' => 'kosfinder/avatars'
+            ]);
 
-                    if ($user->avatar_path) {
-                        // Hapus gambar lama di Cloudinary jika perlu
-                    }
-
-                    $user->update(['avatar_path' => $upload['secure_url']]);
-
-                    return response()->json([
-                        'message' => 'Foto profil berhasil diperbarui.',
-                        'avatar_url' => $upload['secure_url'],
-                        'user' => $user
-                    ], 200);
-
-                } catch (\Exception $e) {
-                    Log::error('Gagal upload avatar: ' . $e->getMessage());
-                    return response()->json([
-                        'message' => 'Terjadi kesalahan saat menyimpan foto profil.'
-                    ], 500);
-                }
+            if ($user->avatar_path) {
+                // Hapus gambar lama di Cloudinary jika perlu
             }
+
+            $user->update(['avatar_path' => $upload['secure_url']]);
+
+            return response()->json([
+                'message' => 'Foto profil berhasil diperbarui.',
+                'avatar_url' => $upload['secure_url'],
+                'user' => $user
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Gagal upload avatar: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat menyimpan foto profil.'
+            ], 500);
+        }
+    }
 
     // ==========================================
     // UPDATE DATA PROFIL (NAMA & NO. HP)
@@ -281,6 +295,9 @@ class AuthController extends Controller
         ]);
     }
 
+    // ==========================================
+    // GANTI PASSWORD
+    // ==========================================
     public function changePassword(Request $request)
     {
         $request->validate([
@@ -289,38 +306,37 @@ class AuthController extends Controller
         ], [
             'new_password.min' => 'Password baru minimal 6 karakter.',
         ]);
- 
+
         $user = $request->user();
- 
-        // Verifikasi password lama
+
         if (!Hash::check($request->current_password, $user->password_hash)) {
             return response()->json([
                 'message' => 'Password saat ini tidak sesuai.'
             ], 422);
         }
- 
-        // Pastikan password baru tidak sama dengan yang lama
+
         if (Hash::check($request->new_password, $user->password_hash)) {
             return response()->json([
                 'message' => 'Password baru tidak boleh sama dengan password lama.'
             ], 422);
         }
- 
+
         $user->update([
             'password_hash' => Hash::make($request->new_password)
         ]);
- 
+
         return response()->json([
             'message' => 'Password berhasil diubah.'
         ], 200);
     }
+
     // ==========================================
     // API LOGOUT
     // ==========================================
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        
+
         return response()->json([
             'message' => 'Logout berhasil!'
         ]);
