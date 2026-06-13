@@ -9,7 +9,7 @@ use App\Http\Controllers\KosViewController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\AdminController;  // ← BARU
+use App\Http\Controllers\AdminController;
 use App\Models\Facility;
 use App\Models\Rule;
 
@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth & Profil
     Route::post('/update-avatar',    [AuthController::class, 'updateAvatar']);
     Route::put('/update-profile',    [AuthController::class, 'updateProfile']);
+    Route::post('/check-phone',      [AuthController::class, 'checkPhone']);   // ← BARU
     Route::post('/logout',           [AuthController::class, 'logout']);
     Route::post('/upgrade-account',  [AuthController::class, 'upgradeAccount']);
     Route::put('/change-password',   [AuthController::class, 'changePassword']);

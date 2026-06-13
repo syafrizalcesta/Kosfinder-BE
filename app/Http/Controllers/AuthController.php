@@ -193,29 +193,59 @@ class AuthController extends Controller
     }
 
     // ==========================================
-    // UPDATE DATA PROFIL (NAMA & NO. HP)
+    // CEK KETERSEDIAAN NOMOR WHATSAPP
     // ==========================================
-    public function updateProfile(Request $request)
+    public function checkPhone(Request $request)
     {
         $request->validate([
-            'user_name' => 'required|string|max:20',
-            'phone_whatsapp' => ['required', 'string', 'min:10', 'max:15', 'regex:/^(08|62)[0-9]+$/'],
-        ], [
-            'user_name.required' => 'Nama pengguna tidak boleh kosong.',
-            'phone_whatsapp.regex' => 'Format nomor WhatsApp harus diawali 08 atau 62.',
+            'phone_whatsapp' => 'required|string',
         ]);
 
         $user = $request->user();
 
+        $exists = User::where('phone_whatsapp', $request->phone_whatsapp)
+            ->where('id', '!=', $user->id)
+            ->exists();
+
+        return response()->json([
+            'exists' => $exists,
+        ], 200);
+    }
+
+    // ==========================================
+    // UPDATE DATA PROFIL (NAMA & NO. HP)
+    // ==========================================
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'user_name' => 'required|string|max:20',
+            'phone_whatsapp' => [
+                'required',
+                'string',
+                'min:10',
+                'max:15',
+                'regex:/^(08|62)[0-9]+$/',
+                // Unique kecuali milik user sendiri
+                \Illuminate\Validation\Rule::unique('users', 'phone_whatsapp')->ignore($user->id),
+            ],
+        ], [
+            'user_name.required'      => 'Nama pengguna tidak boleh kosong.',
+            'phone_whatsapp.regex'    => 'Format nomor WhatsApp harus diawali 08 atau 62.',
+            'phone_whatsapp.min'      => 'Nomor WhatsApp terlalu pendek (minimal 10 angka).',
+            'phone_whatsapp.unique'   => 'Nomor WhatsApp sudah digunakan oleh akun lain.',
+        ]);
+
         try {
             $user->update([
-                'user_name' => $request->user_name,
-                'phone_whatsapp' => $request->phone_whatsapp,
+                'user_name'       => $request->user_name,
+                'phone_whatsapp'  => $request->phone_whatsapp,
             ]);
 
             return response()->json([
                 'message' => 'Profil berhasil diperbarui.',
-                'user' => $user
+                'user'    => $user
             ], 200);
 
         } catch (\Exception $e) {
